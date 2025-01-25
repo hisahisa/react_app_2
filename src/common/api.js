@@ -34,10 +34,9 @@ class ApiService {
         if (csrf_access_token) headers["X-CSRF-TOKEN"] = csrf_access_token;
 
         let bodyContent = body;
-        if (body && typeof body === "object" && !(body instanceof FormData)) {
+        if (body && typeof body === "object" ) {
             bodyContent = JSON.stringify(body);
-        }
-        if (body instanceof FormData) {
+        } else if (body instanceof FormData) {
             delete headers["Content-Type"];
         }
 
