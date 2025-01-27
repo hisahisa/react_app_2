@@ -1,10 +1,18 @@
-import React, { createContext, useState, useCallback, useMemo } from 'react';
-import { SEVERITY } from '../common/constants';
+import React, { createContext, useState, useCallback, useMemo, useEffect } from "react";
+import { useCookies } from "react-cookie";
+import { SEVERITY } from "../common/constants";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-    const [items, setItems] = useState([]);
+    const [cookies, setCookie] = useCookies(["cartItems"]);
+
+    // Cookieから初期状態を復元
+    const [items, setItems] = useState(() => {
+        const savedItems = cookies.cartItems;
+        return savedItems && savedItems.length > 0 ? JSON.parse(JSON.stringify(savedItems)) : [];
+    });
+
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({
         open: false,
@@ -13,8 +21,16 @@ export function CartProvider({ children }) {
     });
     const [sysError, setSysError] = useState({
         statusCode: 404,
-        message: '404 Not Found',
+        message: "404 Not Found",
     });
+
+    // itemsが変更されるたびにCookieに保存
+    useEffect(() => {
+        setCookie("cartItems", JSON.stringify(items), {
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60, // 7日間有効
+        });
+    }, [items]);
 
     const addItems = useCallback((item_key, title, price, qty) => {
         setItems((prev) => {
