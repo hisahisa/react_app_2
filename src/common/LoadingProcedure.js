@@ -20,18 +20,12 @@ export function useCommonHandler(initValue = {}) {
 
     // エラーのメッセージを抽出
     const extractMessages = (errors) => {
-        let msgs = [];
-        Object.values(errors).forEach((v) => {
-            if (!v) return;
-            if (typeof v === "string") {
-                msgs.push(v);
-            } else if (Array.isArray(v)) {
-                msgs = msgs.concat(v);
-            } else {
-                msgs = msgs.concat(extractMessages(v)); // 再帰処理
-            }
+        return Object.values(errors).flatMap((err) => {
+            if (!err) return [];
+            if (typeof err === "string") return [err];
+            if (Array.isArray(err)) return err;
+            return extractMessages(err); // 再帰処理
         });
-        return msgs;
     };
 
     // ローディング処理
@@ -41,11 +35,8 @@ export function useCommonHandler(initValue = {}) {
             try {
                 await func(event);
             } catch (e) {
-                if (e instanceof ApiError) {
-                    handleApiError(e);
-                } else {
+                e instanceof ApiError ? handleApiError(e) :
                     handleGenericError(e);
-                }
             } finally {
                 setLoading(false);
             }
@@ -80,11 +71,11 @@ export function useCommonHandler(initValue = {}) {
     }
 
     function isAuthError(statusCode) {
-        return (
-            statusCode === ERROR_CODES.UNAUTHORIZED ||
-            statusCode === ERROR_CODES.FORBIDDEN ||
-            statusCode === ERROR_CODES.NOT_FOUND
-        );
+        return [
+            ERROR_CODES.UNAUTHORIZED,
+            ERROR_CODES.FORBIDDEN,
+            ERROR_CODES.NOT_FOUND
+        ].includes(statusCode);
     }
 
     function isBusinessError(statusCode) {
