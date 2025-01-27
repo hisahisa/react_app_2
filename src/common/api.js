@@ -29,40 +29,49 @@ class ApiService {
 
     async fetchData(method, body, path = "") {
         const url = `${BASE_URL}/${path}`;
-        const headers = { "Content-Type": "application/json" };
-        const csrf_access_token = cookie.load("csrf_access_token");
-        if (csrf_access_token) headers["X-CSRF-TOKEN"] = csrf_access_token;
-
-        let bodyContent = body;
-        if (body && typeof body === "object" ) {
-            bodyContent = JSON.stringify(body);
-        } else if (body instanceof FormData) {
-            delete headers["Content-Type"];
-        }
 
         try {
             const res = await fetch(url, {
-                headers: headers,
+                headers: this.prepareHeaders(body),
                 method: method,
-                body: bodyContent,
+                body: this.prepareBody(body),
                 mode: "cors"
             });
 
-            const statusCode = res.status;
-            const contentType = res.headers.get("Content-Type") || "";
-            const rtnData = await this.parseResponse(contentType, res);
-
-            if (400 <= statusCode) {
-                this.handleError(new ApiError(statusCode, rtnData))
+            // エラー状態を確認
+            if (res.status >= 400) {
+                this.handleError(new ApiError(res.status, { message: '' }))
             }
 
-            return rtnData;
+            // 成功レスポンスを解析
+            return await this.parseResponse(res);
+
         } catch (e) {
             this.handleError(e);
         }
     }
 
-    parseResponse(contentType, res) {
+    prepareHeaders(body) {
+        const headers = { "Content-Type": "application/json" };
+        const csrf_access_token = cookie.load("csrf_access_token");
+        if (csrf_access_token) headers["X-CSRF-TOKEN"] = csrf_access_token;
+
+        // FormData の場合は Content-Type を削除
+        if (body instanceof FormData) {
+            delete headers["Content-Type"];
+        }
+        return headers;
+    }
+
+    prepareBody(body) {
+        if (body && typeof body === "object" && !(body instanceof FormData)) {
+            return JSON.stringify(body);
+        }
+        return body || null;
+    }
+
+    async parseResponse(res) {
+        const contentType = res.headers.get("Content-Type") || "";
         if (contentType.startsWith("application/json")) {
             return res.json();
         } else if (contentType.startsWith("text/plain")) {
