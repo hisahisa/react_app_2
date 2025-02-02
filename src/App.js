@@ -14,11 +14,13 @@ function App() {
                 <CartProvider>
                     <PageLoading />
                     <Notification />
-                        <Menu/>
-                            <Routes>
-                                <Route path="/" element={<Products />} />
-                                <Route path="/cart" element={<Cart />} />
-                            </Routes>
+                        <Routes>
+                            <Route path="/menu" element={<Menu />} >
+                                <Route index element={<Products />} />
+                                <Route path="product" element={<Products />} />
+                                <Route path="cart" element={<Cart />} />
+                            </Route>
+                        </Routes>
                 </CartProvider>
             </BrowserRouter>
         </>
