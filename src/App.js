@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Products from './pages/Products';
 import Cart from './pages/Cart';
 import Menu from './pages/Menu';
+import Login from './pages/Login';
 import './App.css';
 import {CartProvider} from "./pages/CartContext";
 import Notification from "./common/Notification";
@@ -15,6 +16,8 @@ function App() {
                     <PageLoading />
                     <Notification />
                         <Routes>
+                            <Route index element={<Login />} />
+                            <Route path="/login" element={<Login />} />
                             <Route path="/menu" element={<Menu />} >
                                 <Route index element={<Products />} />
                                 <Route path="product" element={<Products />} />

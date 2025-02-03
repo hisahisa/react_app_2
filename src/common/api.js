@@ -35,6 +35,7 @@ class ApiService {
                 headers: this.prepareHeaders(body),
                 method: method,
                 body: this.prepareBody(body),
+                credentials: "include",
                 mode: "cors"
             });
 
