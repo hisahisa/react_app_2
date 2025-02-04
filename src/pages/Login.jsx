@@ -26,7 +26,7 @@ const Login = () => {
     // キーボードの入力イベント処理 (Enterキー対応)
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // フォームのリロードを防ぐ
+            e.preventDefault(); // フォームリロード防止
             void handleLogin(null);
         }
     };
@@ -60,7 +60,7 @@ const Login = () => {
                         variant="outlined"
                         fullWidth
                         value={username}
-                        autoComplete="username" // 修正された箇所 (キャメルケースに変更)
+                        autoComplete="username"
                         onChange={(e) => setUsername(e.target.value)}
                     />
                     <TextField
@@ -69,7 +69,7 @@ const Login = () => {
                         fullWidth
                         type="password"
                         value={password}
-                        autoComplete="current-password" // 修正された箇所 (キャメルケースに変更)
+                        autoComplete="current-password"
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
