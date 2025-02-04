@@ -18,8 +18,6 @@ const Login = () => {
         const response = await Api.post("login", body);
         if ("Login successful" === response.message) {
             navigate("/menu/product", { replace: true });
-        } else {
-            onSetAlert('login failed.');
         }
     };
 
