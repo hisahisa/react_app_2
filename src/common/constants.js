@@ -13,3 +13,6 @@ export const ERROR_CODES = {
     NOT_FOUND: 404,
     BUSINESS_ERROR: 598,
 };
+
+// ユーザー情報初期値
+export const USER_INFO_INIT = {username: "", }

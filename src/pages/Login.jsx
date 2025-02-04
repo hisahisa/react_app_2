@@ -10,13 +10,14 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const { loadingProcedure } = useCommonHandler();
-    const { onSetAlert } = useContext(CartContext);
+    const { setUserInfo } = useContext(CartContext);
 
     // ログイン処理
     const handleLoginRequest = async () => {
         const body = { username, password };
         const response = await Api.post("login", body);
         if ("Login successful" === response.message) {
+            setUserInfo({username: response.username});
             navigate("/menu/product", { replace: true });
         }
     };

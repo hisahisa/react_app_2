@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback, useMemo, useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { SEVERITY } from "../common/constants";
+import { USER_INFO_INIT, SEVERITY } from "../common/constants";
 import Api from "../common/api";
 import {useNavigate} from "react-router-dom";
 
@@ -9,6 +9,9 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
     const [cookies, setCookie] = useCookies(["cartItems"]);
     const navigate = useNavigate();
+
+    // ユーザー情報
+    const [userInfo, setUserInfo] = useState(USER_INFO_INIT);
 
     // Cookieから初期状態を復元
     const [items, setItems] = useState(() => {
@@ -81,8 +84,11 @@ export function CartProvider({ children }) {
         onSetAlert,
         sysError,
         setSysError,
-        handleLogout
-    }), [items, loading, alert, sysError, addItems, delItems, onSetAlert, handleLogout]);
+        handleLogout,
+        userInfo,
+        setUserInfo,
+    }), [items, loading, alert, sysError, addItems, delItems,
+        onSetAlert, handleLogout, userInfo, setUserInfo]);
 
     return (
         <CartContext.Provider value={values}>
