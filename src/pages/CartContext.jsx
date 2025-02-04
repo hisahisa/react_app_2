@@ -1,11 +1,14 @@
 import React, { createContext, useState, useCallback, useMemo, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { SEVERITY } from "../common/constants";
+import Api from "../common/api";
+import {useNavigate} from "react-router-dom";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
     const [cookies, setCookie] = useCookies(["cartItems"]);
+    const navigate = useNavigate();
 
     // Cookieから初期状態を復元
     const [items, setItems] = useState(() => {
@@ -30,7 +33,7 @@ export function CartProvider({ children }) {
             path: "/",
             maxAge: 7 * 24 * 60 * 60, // 7日間有効
         });
-    }, [items]);
+    }, [items, setCookie]);
 
     const addItems = useCallback((item_key, title, price, qty) => {
         setItems((prev) => {
@@ -56,6 +59,18 @@ export function CartProvider({ children }) {
         setAlert({ open, severity, message });
     }, []);
 
+    // ログアウト処理
+    const handleLogout = useCallback(async () => {
+        setLoading(true);
+        try {
+            await Api.post("logout");
+        } catch (e) {
+        } finally {
+            setLoading(false);
+            navigate("/login", { replace: true });
+        }
+    }, [navigate]);
+
     const values = useMemo(() => ({
         items,
         addItems,
@@ -66,7 +81,8 @@ export function CartProvider({ children }) {
         onSetAlert,
         sysError,
         setSysError,
-    }), [items, loading, alert, sysError]);
+        handleLogout
+    }), [items, loading, alert, sysError, addItems, delItems, onSetAlert, handleLogout]);
 
     return (
         <CartContext.Provider value={values}>

@@ -41,7 +41,9 @@ class ApiService {
 
             // エラー状態を確認
             if (res.status >= 400) {
-                this.handleError(new ApiError(res.status, { message: '' }))
+                let obj = await this.parseResponse(res);
+                let messages = obj.message;
+                this.handleError(new ApiError(res.status, { message: messages }));
             }
 
             // 成功レスポンスを解析

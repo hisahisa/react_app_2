@@ -50,11 +50,10 @@ export function useCommonHandler(initValue = {}) {
 
         if (isAuthError(statusCode)) {
             onSetAlert(msg);
-            // navigate(Links.login, { replace: true });
+            navigate("/login", { replace: true });
         } else if (isBusinessError(statusCode)) {
             onSetAlert(msg);
         } else {
-            onSetAlert(msg);
             setSysError({ statusCode, ...msg });
             // navigate(Links.error, { replace: true });
         }
