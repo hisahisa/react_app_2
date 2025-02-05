@@ -7,6 +7,7 @@ import './App.css';
 import {CartProvider} from "./pages/CartContext";
 import Notification from "./common/Notification";
 import PageLoading from "./common/PageLoading";
+import MenuComponent from "./pages/Menu";
 
 function App() {
     return (
@@ -18,7 +19,7 @@ function App() {
                         <Routes>
                             <Route index element={<Login />} />
                             <Route path="/login" element={<Login />} />
-                            <Route path="/menu" element={<Menu />} >
+                            <Route path="/menu" element={<MenuComponent />} >
                                 <Route index element={<Products />} />
                                 <Route path="product" element={<Products />} />
                                 <Route path="cart" element={<Cart />} />
