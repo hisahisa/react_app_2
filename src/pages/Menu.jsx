@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
     AppBar,
@@ -20,7 +20,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import HistoryIcon from "@mui/icons-material/History";
 
-// スタイルの設定
 const appBarStyles = { justifyContent: 'space-between', height: 80 };
 const linkStyles = { color: 'inherit', textDecoration: 'none' };
 const menuItemStyles = {
@@ -36,60 +35,51 @@ const overlayStyles = {
     left: 0,
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // 薄暗い背景色
-    zIndex: 1  // メニューの下にオーバーレイが入らないように
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1
 };
 
 // UserControlsコンポーネント: プルダウンメニューを担当
 const UserControls = ({ onLogout, username }) => {
-    const [anchorEl, setAnchorEl] = useState(null); // メニュー開閉の管理
+    const [menuOpen, setMenuOpen] = useState(false);
+    const buttonRef = useRef(null);
 
-    const handleMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget); // メニューを開く
+    const openMenu = () => setMenuOpen(true);
+    const closeMenu = () => {
+        setMenuOpen(false);
+        buttonRef.current?.focus(); // optional chainingを使用
     };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null); // メニューを閉じる
-    };
-
-    const isMenuOpen = Boolean(anchorEl);
+    const overlayClickHandler = () => closeMenu();
 
     return (
         <>
-            {/* オーバーレイ */}
-            {isMenuOpen && <Box sx={overlayStyles} onClick={handleMenuClose} />}
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: 3, zIndex: 2 }}>
+            {menuOpen && <Box sx={overlayStyles} onClick={overlayClickHandler} />}
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ mr: 3 }}>
                 <Typography
+                    ref={buttonRef}
                     variant="h6"
                     sx={{ cursor: "pointer" }}
-                    onMouseOver={handleMenuOpen} // ユーザー名にホバーでメニューオープン
+                    onClick={openMenu}
+                    tabIndex={0} // キーボード対応
                 >
                     ユーザ名: {username}
                 </Typography>
                 <Menu
-                    anchorEl={anchorEl}
-                    open={isMenuOpen}
-                    onClose={handleMenuClose}
-                    onMouseLeave={handleMenuClose} // メニュー外にカーソルが移動すると閉じる
-                    MenuListProps={{
-                        onMouseOver: e => e.stopPropagation(), // 子要素にホバーした時のバブリング防止
-                    }}
+                    open={menuOpen}
+                    onClose={closeMenu}
+                    anchorEl={buttonRef.current}
+                    MenuListProps={{ onMouseLeave: closeMenu }}
                 >
-                    {/* 購入履歴アイコン付きメニュー */}
-                    <MenuItem
-                        component={Link}
-                        to="purchase-history"
-                        sx={menuItemStyles}
-                    >
+                    <MenuItem component={Link} to="purchase-history" sx={menuItemStyles}>
                         <ListItemIcon>
                             <HistoryIcon fontSize="small" />
                         </ListItemIcon>
                         <ListItemText primary="購入履歴" />
                     </MenuItem>
-                    {/* ログアウトアイコン付きメニュー */}
                     <MenuItem
                         onClick={() => {
-                            handleMenuClose();
+                            closeMenu();
                             onLogout();
                         }}
                         sx={menuItemStyles}
@@ -105,36 +95,31 @@ const UserControls = ({ onLogout, username }) => {
     );
 };
 
-// カートボタンコンポーネント: カートのアイコン付きボタン
+// カートボタンコンポーネントをシンプル化
 const CartButton = ({ cartCount }) => (
-    <Button component={Link} to="cart" sx={{ color: 'inherit', zIndex: 2 }}>
+    <Button component={Link} to="cart" sx={{ color: 'inherit' }}>
         <Badge badgeContent={cartCount} color="secondary">
-            <ShoppingCartIcon /> {/* カートのアイコン */}
+            <ShoppingCartIcon />
         </Badge>
     </Button>
 );
 
-// メインの MenuComponent
+// Main MenuComponent
 const MenuComponent = () => {
     const { items: cartItems, handleLogout, userInfo } = useContext(CartContext);
-    const username = userInfo?.username;
+    const username = userInfo?.username || "ゲスト"; // デフォルト値を設定
 
     return (
         <>
             <AppBar position="static">
                 <Toolbar sx={appBarStyles}>
-                    {/* タイトル + ホームアイコン */}
                     <Button component={Link} to="product" sx={linkStyles}>
-                        <HomeIcon sx={{ mr: 1 }} /> {/* ホームアイコン */}
+                        <HomeIcon sx={{ mr: 1 }} />
                         <Typography variant="h6" sx={{ color: 'inherit' }}>
                             タイトル
                         </Typography>
                     </Button>
-
-                    {/* ユーザー操作 (購入履歴・ログアウト) */}
                     <UserControls onLogout={handleLogout} username={username} />
-
-                    {/* カートボタン */}
                     <CartButton cartCount={cartItems.length} />
                 </Toolbar>
             </AppBar>
