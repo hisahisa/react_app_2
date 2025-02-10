@@ -1,24 +1,19 @@
-import React, { createContext, useState, useCallback, useMemo, useEffect } from "react";
-import { useCookies } from "react-cookie";
+import React, { createContext, useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useCookieState from "../common/useCookieState";
 import { USER_INFO_INIT, SEVERITY } from "../common/constants";
 import Api from "../common/api";
-import {useNavigate} from "react-router-dom";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-    const [cookies, setCookie] = useCookies(["cartItems"]);
     const navigate = useNavigate();
 
-    // ユーザー情報
-    const [userInfo, setUserInfo] = useState(USER_INFO_INIT);
+    // Cookieと同期された状態
+    const [items, setItems] = useCookieState("cartItems", []);
+    const [userInfo, setUserInfo] = useCookieState("userInfo", USER_INFO_INIT);
 
-    // Cookieから初期状態を復元
-    const [items, setItems] = useState(() => {
-        const savedItems = cookies.cartItems;
-        return savedItems && savedItems.length > 0 ? JSON.parse(JSON.stringify(savedItems)) : [];
-    });
-
+    // ローカル状態（Cookie不要）
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({
         open: false,
@@ -29,14 +24,6 @@ export function CartProvider({ children }) {
         statusCode: 404,
         message: "404 Not Found",
     });
-
-    // itemsが変更されるたびにCookieに保存
-    useEffect(() => {
-        setCookie("cartItems", JSON.stringify(items), {
-            path: "/",
-            maxAge: 7 * 24 * 60 * 60, // 7日間有効
-        });
-    }, [items, setCookie]);
 
     const addItems = useCallback((item_key, title, price, qty) => {
         setItems((prev) => {

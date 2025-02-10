@@ -26,7 +26,7 @@ const menuItemStyles = {
     padding: "8px 16px",
     cursor: "pointer",
     '&:hover': {
-        borderBottom: "2px solid",
+        border: "1px solid",
     },
 };
 const overlayStyles = {
