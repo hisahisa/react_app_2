@@ -9,11 +9,11 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
     const navigate = useNavigate();
 
-    // Cookieと同期された状態
+    // Cookieと同期のステート
     const [items, setItems] = useCookieState("cartItems", []);
     const [userInfo, setUserInfo] = useCookieState("userInfo", USER_INFO_INIT);
 
-    // ローカル状態（Cookie不要）
+    // ローカルステート（Cookieは使わない）
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({
         open: false,
@@ -38,11 +38,11 @@ export function CartProvider({ children }) {
             }
             return [...prev, { item_key, title, price, qty }];
         });
-    }, []);
+    }, [setItems]);
 
     const delItems = useCallback((item_key) => {
         setItems((prev) => prev.filter((item) => item.item_key !== item_key));
-    }, []);
+    }, [setItems]);
 
     const onSetAlert = useCallback((
         { message = "", severity = SEVERITY.ERROR, open = true }) => {
