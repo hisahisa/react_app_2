@@ -18,16 +18,6 @@ export function useCommonHandler(initValue = {}) {
         }));
     };
 
-    // エラーのメッセージを抽出
-    const extractMessages = (errors) => {
-        return Object.values(errors).flatMap((err) => {
-            if (!err) return [];
-            if (typeof err === "string") return [err];
-            if (Array.isArray(err)) return err;
-            return extractMessages(err); // 再帰処理
-        });
-    };
-
     // ローディング処理
     function loadingProcedure(func) {
         return async function(event) {
@@ -45,8 +35,8 @@ export function useCommonHandler(initValue = {}) {
 
     function handleApiError(e) {
         const statusCode = Number(e.status);
-        const msgs = e.errors !== undefined ? extractMessages(e.errors) : [e.message];
-        const msg = { message: msgs.join("\r\n") };
+        const msgs = e.message;
+        const msg = { message: msgs};
 
         if (isAuthError(statusCode)) {
             onSetAlert(msg);

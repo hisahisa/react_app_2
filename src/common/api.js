@@ -42,8 +42,8 @@ class ApiService {
             // エラー状態を確認
             if (res.status >= 400) {
                 let obj = await this.parseResponse(res);
-                let messages = obj.message;
-                this.handleError(new ApiError(res.status, { message: messages }));
+                const msgs = obj !== undefined ? this.extractMessages(obj) : ["An error occurred."];
+                this.handleError(new ApiError(res.status, { message: msgs.join("\r\n") }));
             }
 
             // 成功レスポンスを解析
@@ -53,6 +53,16 @@ class ApiService {
             this.handleError(e);
         }
     }
+
+    // エラーのメッセージを抽出
+    extractMessages(errors) {
+        return Object.values(errors).flatMap((err) => {
+            if (!err) return [];
+            if (typeof err === "string") return [err];
+            if (Array.isArray(err)) return err;
+            return this.extractMessages(err); // 再帰処理
+        });
+    };
 
     prepareHeaders(body) {
         const headers = { "Content-Type": "application/json" };
